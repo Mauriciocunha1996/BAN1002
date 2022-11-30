@@ -1,0 +1,63 @@
+1-Faça uma consulta SQL que retorne o nome e CPF dos médicos que também são pacientes do hospital.
+
+Select nome, cpf from medicos where cpf in(SELECT cpf from pacientes);
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2-Faça uma consulta SQL que busque número e andar dos ambulatórios utilizados por médicos ortopedistas.
+
+select nroa, andar from ambulatorios where nroa in(SELECT nroa from medicos where especialidade='ortopedia');
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+3-Faça uma consulta SQL que busque nome e idade dos médicos que têm consulta com a paciente Ana.
+
+select nome, idade from medicos where codm in(select codm from consultas where codp in(SELECT codp from pacientes where nome ='Ana'));
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4- Faça uma consulta SQL que busque código e nome dos médicos que atendem no mesmo ambulatório do médico Pedro e que possuem consultas marcadas para dia 14/06/2006.
+-- incompletos
+
+select codm, nome from medicos where nroa in(select nroa from medicos GROUP BY nroa HAVING count(*) > 1);
+
+ou
+
+select codm , nome from medicos join ambulatorios on medicos.nroa = ambulatorios.nroa where ambulatorios.nroa = 2;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+5-Faça uma consulta SQL que busque nome, CPF e idade dos pacientes que têm consultas marcadas com ortopedistas para dias anteriores ao dia 16.
+
+
+select nome, cpf, idade from pacientes join consultas on pacientes.codp = consultas.codp where data<'2006-06-14' and consultas.codm in(select codm from medicos where especialidade='ortopedia');
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+6-Faça uma consulta SQL que busque dados de todos os ambulatórios e, para aqueles ambulatórios onde médicos dão atendimento, exibir também os seus códigos e nomes.
+
+select * from ambulatorios join medicos on ambulatorios.nroa = medicos.nroa;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+7-Faça uma consulta SQL que busque CPF e nome de todos os médicos e, para aqueles médicos com consultas marcadas, exibir os CPFs e nomes dos seus pacientes e as datas das consultas.
+
+-- incompleta
+
+select distinct cpf, nome from medicos right join consultas on medicos.codm = consultas.codm and consultas.codp in(select codp from pacientes);
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+8-Faça uma consulta SQL que retorne o nome e cpf de médicos, e logo abaixo dos dados de médicos, mostrar nome e cpf de pacientes.
+
+select nome, cpf from medicos union select nome, cpf from pacientes;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+9-Faça uma consulta SQL que retorne o código e nome dos pacientes que nunca consultaram o médico que se chama Pedro.
+
+--possivelmente incorreta
+
+select distinct pacientes.codp, nome from pacientes join consultas on consultas.codm in(select codm from medicos where not nome='Pedro');
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10-Faça uma consulta SQL que retorne o nome e cpf do(s) funcionário(s) que tem o maior salário.
+
+SELECT nome, cpf from funcionarios
+
+except 
+
+select f1.nome, f1.cpf from funcionarios f1 join funcionarios f2 on f1.salario < f2.salario;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
