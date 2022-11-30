@@ -1,3 +1,0 @@
-Select lista_atributos
-from tabela
-where condição
