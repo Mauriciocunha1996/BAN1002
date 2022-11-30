@@ -17,11 +17,11 @@ select nome, idade from medicos where codm in(select codm from consultas where c
 4- Faça uma consulta SQL que busque código e nome dos médicos que atendem no mesmo ambulatório do médico Pedro e que possuem consultas marcadas para dia 14/06/2006.
 -- incompletos
 
-select codm, nome from medicos where nroa in(select nroa from medicos GROUP BY nroa HAVING count(*) > 1);
-
-ou
-
-select codm , nome from medicos join ambulatorios on medicos.nroa = ambulatorios.nroa where ambulatorios.nroa = 2;
+SELECT distinct m1.codm, m1.nome FROM medicos m1, medicos m2, consultas c WHERE m1.nroa=m2.nroa
+AND m1.codm!=m2.codm AND m2.nome='Pedro' AND m1.codm=c.codm AND data='2006-06-14';
+Ou
+SELECT distinct m1.codm, m1.nome FROM medicos m1 JOIN medicos m2 ON m1.nroa=m2.nroa AND
+m1.co
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 5-Faça uma consulta SQL que busque nome, CPF e idade dos pacientes que têm consultas marcadas com ortopedistas para dias anteriores ao dia 16.
 
@@ -37,9 +37,11 @@ select * from ambulatorios join medicos on ambulatorios.nroa = medicos.nroa;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 7-Faça uma consulta SQL que busque CPF e nome de todos os médicos e, para aqueles médicos com consultas marcadas, exibir os CPFs e nomes dos seus pacientes e as datas das consultas.
 
--- incompleta
-
-select distinct cpf, nome from medicos right join consultas on medicos.codm = consultas.codm and consultas.codp in(select codp from pacientes);
+SELECT m.cpf, m.nome, p.cpf, p.nome FROM medicos m LEFT JOIN consultas c ON m.codm=c.codm LEFT
+JOIN pacientes p ON c.codp=p.codp;
+Ou
+SELECT m.cpf, m.nome, p.cpf, p.nome FROM pacientes p JOIN consultas c ON c.codp=p.codp RIGHT JOIN
+medicos m ON m.codm=c.codm;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 8-Faça uma consulta SQL que retorne o nome e cpf de médicos, e logo abaixo dos dados de médicos, mostrar nome e cpf de pacientes.
@@ -48,10 +50,10 @@ select nome, cpf from medicos union select nome, cpf from pacientes;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 9-Faça uma consulta SQL que retorne o código e nome dos pacientes que nunca consultaram o médico que se chama Pedro.
 
---possivelmente incorreta
-
-select distinct pacientes.codp, nome from pacientes join consultas on consultas.codm in(select codm from medicos where not nome='Pedro');
-
+SELECT codp, nome FROM pacientes
+EXCEPT
+SELECT p.codp, p.nome FROM pacientes p NATURAL JOIN consultas c JOIN medicos m ON m.codm=c.codm
+AND m.nome=’Pedro’;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 10-Faça uma consulta SQL que retorne o nome e cpf do(s) funcionário(s) que tem o maior salário.
 
