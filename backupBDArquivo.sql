@@ -32,6 +32,7 @@ CREATE TABLE public.ambulatorios (
 );
 
 
+
 ALTER TABLE public.ambulatorios OWNER TO postgres;
 
 --
