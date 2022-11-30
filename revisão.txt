@@ -1,0 +1,125 @@
+2- (1.0) buscar os IDs e títulos do CDs com preço superior a R$ 30,00. Se o CD possuir um intérprete,
+apresentar o nome e o tipo do intérprete. Caso não possua intérprete, mostrar apenas os dados de CDs
+com os dados de intérpretes aparecendo como branco ou nulo;
+
+select c.id, c.titulo, i.nome,i.tipo from cds c left join 
+interpretes i on c.interprete =i.id
+where
+preco>30
+
+--ou:
+
+select c.id, c.titulo, (select i.nome from interpretes i where i.id =c.interprete),
+(select i.tipo from interpretes i where i.id =c.interprete)
+from cds c where preco>30
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3- (1.0) buscar os códigos de barra dos CDs vendidos em 30/04/2011 e 01/05/2014 (exceto venda com
+cartão) e os nomes e IDs dos funcionários que realizaram as vendas;
+
+select e.codbarras,f.nome,f.id from exemplares e natural join vendas v
+join
+funcionarios f on v.funcionarios = f.id
+where
+data::date in('2011-04-30','2014-05-01') and formapgto != 'cartao'
+
+--ou:
+
+select e.codbarras, f.nome, f.id from exemplares e, vendas v, funcionarios f where
+e.cd = v.cd and v.funcionarios = f.id
+and data::date in('2011-04-30','2014-05-01') and formapgto != 'cartao'
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4- (1.0) buscar as identificações (CD+exemplar) dos exemplares com status ok que estão disponíveis para
+venda (isto significa que não estão na tabela Vendas); 
+
+select cd,exemplar from exemplares where status = 'ok' 
+except 
+select cd, exemplar from vendas
+
+--ou
+select cd,exemplar from exemplares e where 
+not exists
+(select * from vendas v where v.cd = e.cd and v.exemplar = e.exemplar)
+
+--ou
+select cd, exemplar from exemplares where status = 'ok' and
+(cd,exemplar) not in (select cd, exemplar from vendas)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+5-(1.0) buscar pares de IDs e nomes de funcionários que trabalham nos mesmos turnos, sem repetir um
+mesmo par na resposta (em posições diferentes). Exemplo de resultado: 
+
+ID-func1 Nome-func1 ID-func2 Nome-func2
+1 Paulo Silva 3 Maria Santos
+1 Paulo Silva 6 Carlos Pereira
+3 Maria Santos 6 Carlos Pereira
+2 Ana Campos 4 Mário Sá
+2 Ana Campos 5 Lúcia Oliveira
+
+select f1.id,f1.nome,f2.id,f2.nome from funcionarios f1 join funcionarios f2
+on f1.turno = f2.turno
+and f1.id < f2.id
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6) (1.0) buscar os IDs e nomes dos intérpretes internacionais que estão presentes tanto em CDs de
+coletânea quanto em CDs de intérprete;
+
+select i.id,i.nome from interpretes i join cds c on i.id = c.interprete
+where
+i.nacionalidade != 'Brasileira' and c.tipo = 'coletanea'
+intersect
+select i.id,i.nome from interpretes i join cds c on i.id = c.interprete
+where
+i.nacionalidade != 'Brasileira' and c.tipo = 'interprete'
+
+--ou:
+
+select i.id,i.nome from interpretes i join cds c on i.id = c.interprete
+where
+i.nacionalidade != 'Brasileira' 
+and c.tipo = 'coletanea'
+and i.id in 
+(select interprete from cds c where
+ i.nacionalidade != 'Brasileira' and c.tipo = 'interprete')
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+7) (2.0) buscar os IDs e nomes dos funcionários do noturno que venderam exemplares de todos os CDs
+interpretados pela cantora Ivete Sangalo;
+
+
+ select f.id, nome from funcionarios f where turno ='n'
+ and not exists(select * from cds c join interpretes i on c.interprete = i.id
+                  and i.nome = 'Ivete Sangalo' where
+                 not exists (select * from vendas v where v.funcionarios = f.id
+                            and c.id = v.cd))
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+8) (1.0) Faça uma expressão que aumente em 10% o salário dos funcionários que venderam o CD mais
+caro da loja.
+
+
+update funcionarios set salario = salario * 1.1 where 
+    id in (select funcionarios from vendas v join cds c on v.cd = c.id where
+            preco =(select max(preco) from cds))
+
+--ou
+
+update funcionarios set salario = salario * 1.1 where 
+    id in (select funcionarios from vendas v join
+           (select id from cds order by preco desc limit 1 ) as c on v.cd = c.id)
+
+--ou:
+update funcionarios set salario = salario * 1.1 where 
+    id in (select funcionarios from vendas v join cds c on
+           v.cd = c.id where not exists (select * from cds c2 where c2.preco > c.preco))
+
+--ou:
+update funcionarios set salario = salario * 1.1 where 
+    id in (select funcionarios from vendas v join cds c on v.cd = c.id where
+            preco >= all (select preco from cds))
