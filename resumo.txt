@@ -1,0 +1,17 @@
+--quando quero mostar qual base de dados irei usar
+use base_de_dados;
+
+
+--mostrar as tabelas da base de dados
+show tables;
+
+--descreve as colunas da tabela
+describe users;
+
+--inserir registros na base de dados
+insert into users
+
+-- sinal de diferente para string <>
+
+SELECT nome FROM medicos where especialidade<>'traumatologia';
+
