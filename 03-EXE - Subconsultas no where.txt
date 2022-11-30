@@ -1,0 +1,60 @@
+1-Faça uma expressão SQL que utilize o operador IN e que retorne o nome e CPF dos médicos que também são pacientes do hospital.
+
+select nome, cpf from medicos where cpf in(select cpf from pacientes);
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2-Faça uma expressão SQL que utilize o operador IN e que retorne o nome e idade dos médicos que têm consulta com a paciente Ana.
+
+select nome, idade from medicos join consultas on medicos.codm = consultas.codm where consultas.codp in(select codp from pacientes where nome='Ana');
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+3-Faça uma expressão SQL que utilize o operador IN e que retorne o número e andar dos ambulatórios onde nenhum médico dá atendimento.
+
+SELECT nroa, andar FROM Ambulatorios WHERE nroa NOT IN (SELECT nroa FROM Medicos)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4-Faça uma expressão SQL que utilize o operador IN e que retorne o nome, CPF e idade dos pacientes que têm consultas marcadas sempre para dias anteriores ao dia 16.
+
+SELECT nome, cpf, idade FROM Pacientes NATURAL JOIN Consultas WHERE codp NOT IN (SELECT codp FROM Consultas WHERE date part('DAY', data)>=16);
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5-Faça uma expressão SQL que utilize o operador ANY/ALL e que retorne o números e andares de todos os ambulatórios, exceto o de menor capacidade.
+
+SELECT nroa, andar FROM Ambulatorios WHERE capacidade > n (SELECT capacidade FROM Ambulatorios)
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6-Faça uma expressão SQL que utilize o operador ANY/ALL e que retorne o nome e idade dos médicos que têm consulta com a paciente Ana.
+
+SELECT nome, idade FROM medicos WHERE codm = ANY (Select codm FROM Consultas WHERE codp = ANY (SELECT codp FROM Pacientes WHERE nome = 'Ana'))
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+7-Faça uma expressão SQL que utilize o operador ANY/ALL e que retorne o nome e a idade do médico mais jovem (sem usar função MIN!).
+
+ SELECT nome, idade FROM Medicos WHERE idade <= ALL (SELECT idade FROM Medicos)
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+8-Faça uma expressão SQL que utilize o operador ANY/ALL e que retorne o nome e CPF dos pacientes com consultas marcadas para horários anteriores a todos os horários de consultas marcadas para o dia 12 de Novembro de 2006.
+
+SELECT nome, cpf FROM Pacientes WHERE codp IN (SELECT codp FROM Consultas WHERE hora < ALL (SELECT hora FROM Consultas WHERE data = '2006-11-12')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+9-Faça uma expressão SQL que utilize o operador EXISTS e que retorne o nome e idade dos médicos que têm consulta com a paciente Ana.
+
+SELECT nome, idade FROM medicos m WHERE EXISTS (Select * FROM Consultas c WHERE m.codm = c.codm AND EXISTS (SELECT * FROM Pacientes p WHERE nome = 'Ana' AND p.codp = c.codp))
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+10- Faça uma expressão SQL que utilize o operador EXISTS e que retorne o número do ambulatório com a maior capacidade (sem usar função MAX!).
+
+SELECT al.nroa FROM Ambulatorios al WHERE NOT EXISTS (SELECT * FROM Ambulatorios a2 WHERE a2.capacidade > a1.capacidade)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
